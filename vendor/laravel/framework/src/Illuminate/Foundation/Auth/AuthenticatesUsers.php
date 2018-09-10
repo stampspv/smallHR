@@ -2,9 +2,12 @@
 
 namespace Illuminate\Foundation\Auth;
 
+use App\Company;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use PhpParser\Builder\Use_;
 
 trait AuthenticatesUsers
 {
@@ -41,9 +44,24 @@ trait AuthenticatesUsers
             return $this->sendLockoutResponse($request);
         }
 
-        if ($this->attemptLogin($request)) {
-            return $this->sendLoginResponse($request);
+        $company = strtolower($request->company);
+        $getCom = Company::where('subdomain',$company)->get();
+        $getUser = User::where('email',$request->email)->get();
+        if ($getUser->count() == 0){
+            return 'หา User ไม่เจอ';
+        }else if ($getCom->count() == 0){
+            return 'หาบริษัทไม่เจอ';
+        }else{
+            if($getUser->first()->company_id != $getCom->first()->id){
+                return 'User กับ Company ไม่ตรงกัน';
+            }else{
+                if ($this->attemptLogin($request)) {
+                    return $this->sendLoginResponse($request);
+                }
+            }
+
         }
+
 
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
@@ -64,6 +82,7 @@ trait AuthenticatesUsers
         $this->validate($request, [
             $this->username() => 'required|string',
             'password' => 'required|string',
+            'company' => 'required|string',
         ]);
     }
 
@@ -116,7 +135,7 @@ trait AuthenticatesUsers
      */
     protected function authenticated(Request $request, $user)
     {
-        //
+
     }
 
     /**
