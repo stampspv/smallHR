@@ -536,7 +536,6 @@
     </div>
 </section>
 <!-- END section -->
-
 @extends('layouts.footer')
 
 <!-- loader -->
