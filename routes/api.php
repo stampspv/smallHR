@@ -16,3 +16,8 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// API
+Route::post('/api/apiCheckCompanyExist.is', [
+    'as' => 'api.apiCheckCompanyExist',
+    'uses' => 'ApiController@apiCheckCompanyExist']);
